@@ -1,5 +1,6 @@
 (ns ^:figwheel-hooks clj-atl-meetup.core
   (:require
+   [ajax.core :refer [GET POST]]
    [goog.dom :as gdom]
    [reagent.core :as reagent :refer [atom]]))
 
@@ -10,6 +11,7 @@
 
 ;; define your app data so that it doesn't get over-written on reload
 (defonce app-state (atom {:text "Hello world!"}))
+(defonce app-state-demo (atom {}))
 
 (defn get-app-element []
   (gdom/getElement "app"))
@@ -20,6 +22,8 @@
     [:div.card-title "Distance calculation"]
     [:div.card-text
      [:p (:text @app-state)]
+     [:p
+      [:h1 (:time @app-state-demo)]]
      #_[:h3 "Edit this in src/clj_atl_meetup/core.cljs and watch it change!"]]]])
 
 (defn mount [el]
@@ -33,9 +37,20 @@
 ;; this is particularly helpful for testing this ns without launching the app
 (mount-app-element)
 
+(defn get-data []
+  (GET "http://localhost:3000/demo/distance?start=atlanta&end=nyc"
+      {:handler (fn [response] (js/console.log "Here!!") (reset! app-state-demo {:time response}))
+       ;:headers (get-ajax-headers)
+       ;:error-handler error-handler
+       ;;:response-format :json
+       ;;:keywords? true
+       }))
+
+
 ;; specify reload hook with ^;after-load metadata
 (defn ^:after-load on-reload []
   (mount-app-element)
+  (get-data)
   ;; optionally touch your app-state to force rerendering depending on
   ;; your application
   ;; (swap! app-state update-in [:__figwheel_counter] inc)
