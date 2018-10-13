@@ -16,18 +16,43 @@
 (defn get-app-element []
   (gdom/getElement "app"))
 
-(defn hello-world []
+(defn form-panel []
   [:div.card
    [:div.card-body
-    [:div.card-title "Distance calculation"]
-    [:div.card-text
-     [:p (:text @app-state)]
-     [:p
-      [:h1 (:time @app-state-demo)]]
-     #_[:h3 "Edit this in src/clj_atl_meetup/core.cljs and watch it change!"]]]])
+    [:div.card-title "Starting address"]
+    [:div
+     [:div
+      [:label "\u00A0 Street"]]
+     [:div
+      [:input
+       {:id "street"
+        :type "text"}]]
+     [:div
+       [:label "\u00A0 State"]]
+     [:div
+      [:select.custom-select
+       {:id "state"
+        :type "select"}
+       [:option "Select a State"]
+       [:option {:value "GA"} "GA"]
+       [:option {:value "FL"} "FL"]
+       [:option {:value "SC"} "SC"]
+       [:option {:value "NC"} "NC"]]]]]])
+
+(defn result-panel []
+  [:div
+   [form-panel]
+   [:div.card
+    [:div.card-body
+     [:div.card-title "Distance calculation"]
+     [:div.card-text
+      #_[:p (:text @app-state)]
+      [:p
+       [:h1 (:time @app-state-demo)]]
+      #_[:h3 "Edit this in src/clj_atl_meetup/core.cljs and watch it change!"]]]]])
 
 (defn mount [el]
-  (reagent/render-component [hello-world] el))
+  (reagent/render-component [result-panel] el))
 
 (defn mount-app-element []
   (when-let [el (get-app-element)]
