@@ -26,18 +26,43 @@
      [:div
       [:input
        {:id "street"
-        :type "text"}]]
+        :type "text"
+        :value (@app-state-demo :address)
+        :on-change #(swap! app-state-demo assoc :address (-> % .-target .-value))}]]
+     [:div
+      [:label "\u00A0 City"]]
+     [:div
+      [:input
+       {:id "city"
+        :type "text"
+        :value (@app-state-demo :city)
+        :on-change #(swap! app-state-demo assoc :city (-> % .-target .-value))}]]
      [:div
        [:label "\u00A0 State"]]
      [:div
       [:select.custom-select
        {:id "state"
-        :type "select"}
+        :type "select"
+        :value (@app-state-demo :state)
+        :on-change #(swap! app-state-demo assoc :state (-> % .-target .-value))}
        [:option "Select a State"]
        [:option {:value "GA"} "GA"]
        [:option {:value "FL"} "FL"]
        [:option {:value "SC"} "SC"]
-       [:option {:value "NC"} "NC"]]]]]])
+       [:option {:value "NC"} "NC"]]]
+     [:div
+      [:label "\u00A0 Zip"]]
+     [:div
+      [:input
+       {:id "zip"
+        :type "text"
+        :value (@app-state-demo :zip)
+        :on-change #(swap! app-state-demo assoc :zip (-> % .-target .-value))}]]
+     [:div
+      [:button.btn.btn-primary
+       {:type "button"
+        :on-click #(js/console.log "Clicked!")}
+       "Calculate"]]]]])
 
 (defn result-panel []
   [:div
@@ -62,20 +87,30 @@
 ;; this is particularly helpful for testing this ns without launching the app
 (mount-app-element)
 
-(defn get-data []
-  (GET "http://localhost:3000/demo/distance?start=atlanta&end=nyc"
-      {:handler (fn [response] (js/console.log "Here!!") (reset! app-state-demo {:time response}))
-       ;:headers (get-ajax-headers)
-       ;:error-handler error-handler
-       ;;:response-format :json
-       ;;:keywords? true
-       }))
+(defn get-data
+  ([]
+   (GET "http://localhost:3000/demo/distance?start=atlanta&end=nyc"
+       {:handler (fn [response] (js/console.log "Here!!") (swap! app-state-demo assoc :time response))
+                                        ;:headers (get-ajax-headers)
+                                        ;:error-handler error-handler
+        ;;:response-format :json
+        ;;:keywords? true
+        }))
+  ([start end]
+   (GET (str "http://localhost:3000/demo/distance?start=" start
+             "&end=" end)
+       {:handler (fn [response] (js/console.log "Here!!") (swap! app-state-demo assoc :time response))
+                                        ;:headers (get-ajax-headers)
+                                        ;:error-handler error-handler
+        ;;:response-format :json
+        ;;:keywords? true
+        })))
 
 
 ;; specify reload hook with ^;after-load metadata
 (defn ^:after-load on-reload []
   (mount-app-element)
-  (get-data)
+  ;;(get-data)
   ;; optionally touch your app-state to force rerendering depending on
   ;; your application
   ;; (swap! app-state update-in [:__figwheel_counter] inc)
