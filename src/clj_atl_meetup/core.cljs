@@ -1,20 +1,51 @@
 (ns ^:figwheel-hooks clj-atl-meetup.core
   (:require
    [ajax.core :refer [GET POST]]
+   [clojure.string :as string]
    [goog.dom :as gdom]
    [reagent.core :as reagent :refer [atom]]))
-
-(println "This text is printed from src/clj_atl_meetup/core.cljs. Go ahead and edit it and see reloading in action.")
 
 (defn multiply [a b] (* a b))
 
 
 ;; define your app data so that it doesn't get over-written on reload
 (defonce app-state (atom {:text "Hello world!"}))
-(defonce app-state-demo (atom {}))
+(defonce app-state-demo (atom {:state ""}))
 
 (defn get-app-element []
   (gdom/getElement "app"))
+
+(defn get-data
+  ([]
+   (GET "http://localhost:3000/demo/distance?start=atlanta&end=nyc"
+       {:handler (fn [response]
+                   (js/console.log "Here!!")
+                   (swap! app-state-demo assoc :time response))
+                                        ;:headers (get-ajax-headers)
+                                        ;:error-handler error-handler
+        ;;:response-format :json
+        ;;:keywords? true
+        }))
+  ([starting-address ending-address]
+   (let [start (string/replace starting-address #" " "+")
+         end (string/replace ending-address #" " "+")]
+     (GET (str "http://localhost:3000/demo/distance?start=" start
+               "&end=" end)
+         {:handler (fn [response]
+                     (js/console.log "Here!!")
+                     (swap! app-state-demo assoc :time response))
+                                        ;:headers (get-ajax-headers)
+                                        ;:error-handler error-handler
+          ;;:response-format :json
+          ;;:keywords? true
+          }))))
+
+(defn get-distance-result []
+  (js/console.log "Clicked!")
+  (let [street-field (gdom/getElement "street")]
+    (js/console.log "Street:" street-field)
+    (js/console.log "Street:" (.-value street-field))
+    (get-data "2210 ashton dr villa rica ga 30180" "1738 MacArthur Blvd NW Atlanta, Georgia")))
 
 (defn form-panel []
   [:div.card
@@ -61,8 +92,10 @@
      [:div
       [:button.btn.btn-primary
        {:type "button"
-        :on-click #(js/console.log "Clicked!")}
+        :on-click get-distance-result}
        "Calculate"]]]]])
+
+
 
 (defn result-panel []
   [:div
@@ -72,7 +105,7 @@
      [:div.card-title "Distance calculation"]
      [:div.card-text
       #_[:p (:text @app-state)]
-      [:p
+      [:div
        [:h1 (:time @app-state-demo)]]
       #_[:h3 "Edit this in src/clj_atl_meetup/core.cljs and watch it change!"]]]]])
 
@@ -87,24 +120,7 @@
 ;; this is particularly helpful for testing this ns without launching the app
 (mount-app-element)
 
-(defn get-data
-  ([]
-   (GET "http://localhost:3000/demo/distance?start=atlanta&end=nyc"
-       {:handler (fn [response] (js/console.log "Here!!") (swap! app-state-demo assoc :time response))
-                                        ;:headers (get-ajax-headers)
-                                        ;:error-handler error-handler
-        ;;:response-format :json
-        ;;:keywords? true
-        }))
-  ([start end]
-   (GET (str "http://localhost:3000/demo/distance?start=" start
-             "&end=" end)
-       {:handler (fn [response] (js/console.log "Here!!") (swap! app-state-demo assoc :time response))
-                                        ;:headers (get-ajax-headers)
-                                        ;:error-handler error-handler
-        ;;:response-format :json
-        ;;:keywords? true
-        })))
+
 
 
 ;; specify reload hook with ^;after-load metadata
