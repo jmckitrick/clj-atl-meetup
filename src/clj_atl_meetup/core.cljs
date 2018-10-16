@@ -5,15 +5,23 @@
    [goog.dom :as gdom]
    [reagent.core :as reagent :refer [atom]]))
 
+
 (defn multiply [a b] (* a b))
 
 
-;; define your app data so that it doesn't get over-written on reload
 (defonce app-state (atom {:text "Hello world!"}))
-(defonce app-state-demo (atom {:state ""}))
+
 
 (defn get-app-element []
   (gdom/getElement "app"))
+
+
+(defonce app-state-demo (atom {:state ""}))
+
+
+(defn fix-query [s]
+  (string/replace s #" " "+"))
+
 
 (defn get-data
   ([]
@@ -26,6 +34,20 @@
         ;;:response-format :json
         ;;:keywords? true
         }))
+  ([starting-address]
+   (let [ending-address "101 W. CHAPEL HILL STREET SUITE 300 DURHAM, NC 27701"
+         start (string/replace starting-address #" " "+")
+         end (string/replace ending-address #" " "+")]
+     (GET (str "http://localhost:3000/demo/distance?start=" start
+               "&end=" end)
+         {:handler (fn [response]
+                     (js/console.log "Here!!")
+                     (swap! app-state-demo assoc :time response))
+                                        ;:headers (get-ajax-headers)
+                                        ;:error-handler error-handler
+          ;;:response-format :json
+          ;;:keywords? true
+          })))
   ([starting-address ending-address]
    (let [start (string/replace starting-address #" " "+")
          end (string/replace ending-address #" " "+")]
@@ -40,12 +62,24 @@
           ;;:keywords? true
           }))))
 
+
 (defn get-distance-result []
   (js/console.log "Clicked!")
-  (let [street-field (gdom/getElement "street")]
+  (swap! app-state-demo assoc :time "---" )
+  (let [street-field (gdom/getElement "street")
+        city-field (gdom/getElement "city")
+        state-field (gdom/getElement "state")
+        zip-field (gdom/getElement "zip")
+        street (.-value street-field)
+        city (.-value city-field)
+        state (.-value state-field)
+        zip (.-value zip-field)]
     (js/console.log "Street:" street-field)
     (js/console.log "Street:" (.-value street-field))
-    (get-data "2210 ashton dr villa rica ga 30180" "1738 MacArthur Blvd NW Atlanta, Georgia")))
+    ;;(get-data "1738 MacArthur Blvd NW Atlanta, Georgia")
+    ;;(get-data "2210 Ashton Dr, Villa Rica, GA, 30180")
+    (get-data (string/join ", " [street city state zip]))))
+
 
 (defn form-panel []
   [:div.card
@@ -80,7 +114,8 @@
        [:option {:value "GA"} "GA"]
        [:option {:value "FL"} "FL"]
        [:option {:value "SC"} "SC"]
-       [:option {:value "NC"} "NC"]]]
+       [:option {:value "NC"} "NC"]
+       [:option {:value "NY"} "NY"]]]
      [:div
       [:label "\u00A0 Zip"]]
      [:div
@@ -109,19 +144,19 @@
        [:h1 (:time @app-state-demo)]]
       #_[:h3 "Edit this in src/clj_atl_meetup/core.cljs and watch it change!"]]]]])
 
+
 (defn mount [el]
   (reagent/render-component [result-panel] el))
+
 
 (defn mount-app-element []
   (when-let [el (get-app-element)]
     (mount el)))
 
+
 ;; conditionally start your application based on the presence of an "app" element
 ;; this is particularly helpful for testing this ns without launching the app
-(mount-app-element)
-
-
-
+;;(mount-app-element)
 
 ;; specify reload hook with ^;after-load metadata
 (defn ^:after-load on-reload []
