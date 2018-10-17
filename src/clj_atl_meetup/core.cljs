@@ -28,12 +28,7 @@
    (GET "http://localhost:3000/demo/distance?start=atlanta&end=nyc"
        {:handler (fn [response]
                    (js/console.log "Here!!")
-                   (swap! app-state-demo assoc :time response))
-                                        ;:headers (get-ajax-headers)
-                                        ;:error-handler error-handler
-        ;;:response-format :json
-        ;;:keywords? true
-        }))
+                   (swap! app-state-demo assoc :time response))}))
   ([starting-address]
    (let [ending-address "101 W. CHAPEL HILL STREET SUITE 300 DURHAM, NC 27701"
          start (string/replace starting-address #" " "+")
@@ -42,12 +37,7 @@
                "&end=" end)
          {:handler (fn [response]
                      (js/console.log "Here!!")
-                     (swap! app-state-demo assoc :time response))
-                                        ;:headers (get-ajax-headers)
-                                        ;:error-handler error-handler
-          ;;:response-format :json
-          ;;:keywords? true
-          })))
+                     (swap! app-state-demo assoc :time response))})))
   ([starting-address ending-address]
    (let [start (string/replace starting-address #" " "+")
          end (string/replace ending-address #" " "+")]
@@ -55,12 +45,7 @@
                "&end=" end)
          {:handler (fn [response]
                      (js/console.log "Here!!")
-                     (swap! app-state-demo assoc :time response))
-                                        ;:headers (get-ajax-headers)
-                                        ;:error-handler error-handler
-          ;;:response-format :json
-          ;;:keywords? true
-          }))))
+                     (swap! app-state-demo assoc :time response))}))))
 
 
 (defn get-distance-result []
@@ -74,10 +59,6 @@
         city (.-value city-field)
         state (.-value state-field)
         zip (.-value zip-field)]
-    (js/console.log "Street:" street-field)
-    (js/console.log "Street:" (.-value street-field))
-    ;;(get-data "1738 MacArthur Blvd NW Atlanta, Georgia")
-    ;;(get-data "2210 Ashton Dr, Villa Rica, GA, 30180")
     (get-data (string/join ", " [street city state zip]))))
 
 
@@ -103,7 +84,7 @@
         :value (@app-state-demo :city)
         :on-change #(swap! app-state-demo assoc :city (-> % .-target .-value))}]]
      [:div
-       [:label "\u00A0 State"]]
+      [:label "\u00A0 State"]]
      [:div
       [:select.custom-select
        {:id "state"
@@ -134,15 +115,17 @@
 
 (defn result-panel []
   [:div
-   [form-panel]
-   [:div.card
-    [:div.card-body
-     [:div.card-title "Distance calculation"]
-     [:div.card-text
-      #_[:p (:text @app-state)]
-      [:div
-       [:h1 (:time @app-state-demo)]]
-      #_[:h3 "Edit this in src/clj_atl_meetup/core.cljs and watch it change!"]]]]])
+   [:h3 (@app-state :text)]
+   #_[:div
+    [form-panel]
+    [:div.card
+     [:div.card-body
+      [:div.card-title "Distance calculation"]
+      [:div.card-text
+       #_[:p (:text @app-state)]
+       [:div
+        [:h1 (:time @app-state-demo)]]
+       #_[:h3 "Edit this in src/clj_atl_meetup/core.cljs and watch it change!"]]]]]])
 
 
 (defn mount [el]
@@ -154,15 +137,8 @@
     (mount el)))
 
 
-;; conditionally start your application based on the presence of an "app" element
-;; this is particularly helpful for testing this ns without launching the app
 ;;(mount-app-element)
 
 ;; specify reload hook with ^;after-load metadata
 (defn ^:after-load on-reload []
-  (mount-app-element)
-  ;;(get-data)
-  ;; optionally touch your app-state to force rerendering depending on
-  ;; your application
-  ;; (swap! app-state update-in [:__figwheel_counter] inc)
-)
+  (mount-app-element))
