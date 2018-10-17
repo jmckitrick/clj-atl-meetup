@@ -115,8 +115,8 @@
 
 (defn result-panel []
   [:div
-   [:h3 (@app-state :text)]
-   #_[:div
+   #_[:h3 (@app-state :text)]
+   [:div
     [form-panel]
     [:div.card
      [:div.card-body
