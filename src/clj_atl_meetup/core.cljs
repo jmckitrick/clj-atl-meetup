@@ -6,6 +6,9 @@
    [reagent.core :as reagent :refer [atom]]))
 
 
+(println "Loaded and ready to go!")
+
+
 (defn multiply [a b] (* a b))
 
 
@@ -115,8 +118,8 @@
 
 (defn result-panel []
   [:div
-   #_[:h3 (@app-state :text)]
-   [:div
+   [:h3 (@app-state :text)]
+   #_[:div
     [form-panel]
     [:div.card
      [:div.card-body
@@ -134,10 +137,10 @@
 
 (defn mount-app-element []
   (when-let [el (get-app-element)]
-    (mount el)))
+    #_(mount el)))
 
 
-;;(mount-app-element)
+(mount-app-element)
 
 ;; specify reload hook with ^;after-load metadata
 (defn ^:after-load on-reload []
