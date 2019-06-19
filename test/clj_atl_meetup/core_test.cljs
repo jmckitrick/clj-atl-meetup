@@ -10,6 +10,7 @@
 (deftest multiply-test-2
   (is (= (* 75 10) (multiply 10 75))))
 
+;; fix-query-test
 (deftest fix-query-test
   (is (= "this+is+a+test" (fix-query "this is a test")))
   (is (not (= "this is a test" (fix-query "this is a test"))))
