@@ -5,13 +5,59 @@
    [goog.dom :as gdom]
    [reagent.core :as reagent :refer [atom]]))
 
-
-(println "Loaded and ready to go!")
-
-
-(defn multiply [a b] (* a b))
+(println "@----> Loaded and ready to go XXXXXXXXXXXXXXXXXXXXX!")
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 (defonce app-state (atom {:text "Hello world!"}))
 
 
@@ -19,38 +65,61 @@
   (gdom/getElement "app"))
 
 
-(defonce app-state-demo (atom {:state ""}))
+(defonce app-state-demo (atom {:state ""
+                               :time ""}))
 
+
+(defn multiply [a b] (* a b))
 
 (defn fix-query [s]
   (string/replace s #" " "+"))
 
 
 (defn get-data
-  ([]
-   (GET "http://localhost:3000/demo/distance?start=atlanta&end=nyc"
-       {:handler (fn [response]
-                   (js/console.log "Here!!")
-                   (swap! app-state-demo assoc :time response))}))
-  ([starting-address]
-   (let [ending-address "101 W. CHAPEL HILL STREET SUITE 300 DURHAM, NC 27701"
-         start (string/replace starting-address #" " "+")
-         end (string/replace ending-address #" " "+")]
-     (GET (str "http://localhost:3000/demo/distance?start=" start
-               "&end=" end)
-         {:handler (fn [response]
-                     (js/console.log "Here!!")
-                     (swap! app-state-demo assoc :time response))})))
+  "Get distance data from our backend web service."
   ([starting-address ending-address]
    (let [start (string/replace starting-address #" " "+")
          end (string/replace ending-address #" " "+")]
-     (GET (str "http://localhost:3000/demo/distance?start=" start
-               "&end=" end)
+     (GET (str "http://localhost:3000/demo/distance?start=" start "&end=" end)
          {:handler (fn [response]
-                     (js/console.log "Here!!")
+                     (js/console.log "Distance:" response)
                      (swap! app-state-demo assoc :time response))}))))
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 (defn get-distance-result []
   (js/console.log "Clicked!")
   (swap! app-state-demo assoc :time "---" )
@@ -62,22 +131,68 @@
         city (.-value city-field)
         state (.-value state-field)
         zip (.-value zip-field)]
-    (get-data (string/join ", " [street city state zip]))))
+    (get-data (string/join ", " [street city state zip]) "101 W. CHAPEL HILL STREET SUITE 300 DURHAM, NC 27701")))
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 (defn form-panel []
   [:div.card
    [:div.card-body
     [:div.card-title "Starting address"]
     [:div
      [:div
-      [:label "\u00A0 Street"]]
+      [:label "\u00A0 Street (optional)"]]
      [:div
       [:input
        {:id "street"
         :type "text"
-        :value (@app-state-demo :address)
-        :on-change #(swap! app-state-demo assoc :address (-> % .-target .-value))}]]
+        :value (@app-state-demo :street)
+        :on-change #(swap! app-state-demo assoc :street (-> % .-target .-value))}]]
      [:div
       [:label "\u00A0 City"]]
      [:div
@@ -91,6 +206,7 @@
      [:div
       [:select.custom-select
        {:id "state"
+        :style {:width "20%"}
         :type "select"
         :value (@app-state-demo :state)
         :on-change #(swap! app-state-demo assoc :state (-> % .-target .-value))}
@@ -116,28 +232,142 @@
 
 
 
+
+
+
+
+
+
+
+(defn distance-panel []
+  [:div.card
+   [:div.card-body
+    [:div.card-title "Distance calculation"]
+    [:div.card-text
+     [:div
+      [:h1 (:time @app-state-demo)]]]]])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 (defn result-panel []
   [:div
-   [:h3 (@app-state :text)]
-   #_[:div
+   #_[:h3 (@app-state :text)]
+   [:div
     [form-panel]
-    [:div.card
-     [:div.card-body
-      [:div.card-title "Distance calculation"]
-      [:div.card-text
-       #_[:p (:text @app-state)]
-       [:div
-        [:h1 (:time @app-state-demo)]]
-       #_[:h3 "Edit this in src/clj_atl_meetup/core.cljs and watch it change!"]]]]]])
+    [distance-panel]]])
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 (defn mount [el]
   (reagent/render-component [result-panel] el))
 
 
 (defn mount-app-element []
   (when-let [el (get-app-element)]
-    #_(mount el)))
+    (mount el)))
 
 
 (mount-app-element)
