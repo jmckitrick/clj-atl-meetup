@@ -35,3 +35,8 @@ To create a production build run:
 Copyright © 2018 FIXME
 
 Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.
+
+(deftest fix-query-test
+  (is (= "this+is+a+test" (fix-query "this is a test")))
+  (is (not (= "this is a test" (fix-query "this is a test"))))
+  (is (not (string/includes? (fix-query "this is a test") " "))))
